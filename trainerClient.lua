@@ -272,7 +272,7 @@ function checkIncor()
 	end
 end
 --event
-NPC.Parent         = trainingParts -- These couple lines of code before initilize spawn in the NPC only on the client side so that others can not see it.
+NPC.Parent         = trainingParts --These 4 lines add the NPC instance to the workspace and position it onto the training pad. This is all done in a local script(or client side) to allow the NPC to only interact with one specific player.
 npcRoot.CFrame     = trainerPos.CFrame
 npcRoot.Anchored   = true
 aciveAn:Fire(NPC) --Animates the NPC
