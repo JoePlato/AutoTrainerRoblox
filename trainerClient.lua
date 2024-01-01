@@ -1,8 +1,10 @@
 --[[
-The main functionality of the auto trainer
+Controls the NPC and has the NPC checks
 
 Author: JoePlato
-Version: 12-18/2023
+Version: 1/1/2024
+
+ 
 ]]
 --Services(Run By roblox)
 local repStorage     = game:GetService("ReplicatedStorage")
@@ -59,7 +61,7 @@ local PadsOr
 local hasKicked      = false
 --Settings(Edit depending on your games preferences)
 local Info           = TweenInfo.new(1,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut,0,false,0)    --These are the values for tweening the NPC(when it rotates)     
-local pos1           = walkToParts.pos1  --These are for the posittion that the NPC walks to(notice how all of these are local this is done intentioanlly so each player can go through the training without others seeing)
+local pos1           = walkToParts.pos1  --These are for the posittion that the NPC walks to
 local pos2           = walkToParts.pos2
 local pos3           = walkToParts.pos3
 --functions
@@ -87,7 +89,7 @@ function tweenCamera()
 	local An = tweenService:Create(curCam, TI, Goal)
 	curCam.CameraType = Enum.CameraType.Scriptable
 	An:Play()
-	wait(3)
+	task.wait(3)
 end
 
 function npcChat(input,waitTime)
@@ -101,9 +103,9 @@ function npcChat(input,waitTime)
 	for _, section in pairs(input) do
 		chatService:Chat(NPCHead,section,"White")
 		if waitTime then
-			wait(waitTime)
+			task.wait(waitTime)
 		else
-			wait(3)
+			task.wait(3)
 		end
 	end
 	
@@ -124,7 +126,7 @@ function TM(Model,CF)
 	end)
 	local Tween = tweenService:Create(DummyValue,Info,{Value=CF})
 	Tween:Play()
-	wait(1)
+	task.wait(1)
 	DummyValue:Destroy()
 end
 
@@ -136,11 +138,11 @@ function fadeUi(fadeType)
 		fadeType(string): checks if the transparency of the frame increase gradually or decrease
 	]]
 	if fadeType == "in" then
-		repeat wait()
+		repeat task.wait()
 			fadeFrame.BackgroundTransparency = fadeFrame.BackgroundTransparency + 0.1
 		until fadeFrame.BackgroundTransparency >= 1
 	elseif  fadeType == "out" then
-		repeat wait()
+		repeat task.wait()
 			fadeFrame.BackgroundTransparency = fadeFrame.BackgroundTransparency - 0.1
 		until fadeFrame.BackgroundTransparency <= 0
 	end
@@ -168,15 +170,15 @@ function turnChat(input)
 	end
 	min = currentPad.Epico.Orientation.Y-10
 	max = currentPad.Epico.Orientation.Y+10
-	wait(5)
+	task.wait(5)
 	local CheckRot = CheckRotation(Vector3.new(0,min,0), Vector3.new(0,max,0), true)
 	if CheckRot then
 		chatService:Chat(NPCHead,"Great Job","White")
-		wait(3)
+		task.wait(3)
 	else
 		chatService:Chat(NPCHead,"Thats incorrect, you should have faced this way!","White")
 		humanoidRoot.CFrame = currentPad.Epico.CFrame
-		wait(3)
+		task.wait(3)
 	end
 end
 
@@ -210,23 +212,23 @@ function CheckRotation(RotationAmountMin, RotationAmountMax, Check)
 end
 function npcWalk(Position)
 	-- Makes the NPC walk to the position of Position
-	repeat wait()
+	repeat task.wait(0.01)
 		NPC.Humanoid:MoveTo(Position)
-	until (NPC.HumanoidRootPart.Position - Position).magnitude <= 2
+	until (NPC.HumanoidRootPart.Position - Position).magnitude <= 2.5
 	
 end
 
 function playerWalk(Position)
 	-- Makes the player walk to the position of Position
-	repeat wait()
+	repeat task.wait()
 		humanoid:MoveTo(Position)
-	until (humanoidRoot.Position - Position).magnitude <= 2
+	until (humanoidRoot.Position - Position).magnitude <= 2.5
 
 end
 
 function checkBehind()
 	--Checks if the player is drectly behind the NPC with around 0.05 error
-	repeat wait() 
+	repeat task.wait() 
 		local humLookVector = character.Head.CFrame.LookVector
 		local NPClookVector = NPC.Head.CFrame.LookVector
 		local dotProduct = humLookVector:Dot(NPClookVector)
@@ -243,7 +245,7 @@ local function initJump()
 	UIS.InputBegan:Connect(function(key)
 		if key.KeyCode == Enum.KeyCode.Space then
 			hasKicked = true
-			wait()
+			task.wait()
 			humanoid.JumpHeight = 0
 		end
 	end)
@@ -253,13 +255,13 @@ function checkKick()
 	--Runs through the diolauge for checking if the player has kicked
 	if hasKicked then
 		chatService:Chat(NPCHead,"Good Job For kicking","White")
-		wait(3)
+		task.wait(3)
 		chatService:Chat(NPCHead,"MARCH!","White")
 	else
 		chatService:Chat(NPCHead,"You should have kicked like this!","White")
-		wait(1)
+		task.wait(1)
 		humanoid.Jump = true
-		wait(3)
+		task.wait(3)
 		chatService:Chat(NPCHead,"MARCH!","White")
 	end
 end
@@ -270,7 +272,7 @@ function checkIncor()
 	end
 end
 --event
-NPC.Parent         = trainingParts
+NPC.Parent         = trainingParts -- These couple lines of code before initilize spawn in the NPC only on the client side so that others can not see it.
 npcRoot.CFrame     = trainerPos.CFrame
 npcRoot.Anchored   = true
 aciveAn:Fire(NPC) --Animates the NPC
@@ -296,7 +298,7 @@ initilize.OnClientEvent:Connect(function(padsTaken,introSpeech,turnsIntroSpeech,
 	fadeUi("in")
 	local c = NPC.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
 	TM(NPC,c)
-	wait(2)
+	task.wait(2)
 	curCam.CameraType = Enum.CameraType.Custom
 	NPC.HumanoidRootPart.CFrame = NPC.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
 	turnChat("Right Turn")
@@ -308,7 +310,7 @@ initilize.OnClientEvent:Connect(function(padsTaken,introSpeech,turnsIntroSpeech,
 	curCam.CFrame = facesCam.CFrame
 	fadeUi("in")
 	TM(NPC,NPC.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(90), 0))
-	wait(2)
+	task.wait(2)
 	NPC.HumanoidRootPart.CFrame = NPC.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(-90), 0)
 	curCam.CameraType = Enum.CameraType.Custom
 	turnChat("Left Turn")
@@ -318,7 +320,7 @@ initilize.OnClientEvent:Connect(function(padsTaken,introSpeech,turnsIntroSpeech,
 	curCam.CFrame = facesCam.CFrame
 	fadeUi("in")
 	TM(NPC,NPC.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(180), 0))
-	wait(2)
+	task.wait(2)
 	NPC.HumanoidRootPart.CFrame = NPC.HumanoidRootPart.CFrame * CFrame.Angles(0, math.rad(180), 0)
 	curCam.CameraType = Enum.CameraType.Custom
 	turnChat("Centre Turn")
@@ -327,31 +329,31 @@ initilize.OnClientEvent:Connect(function(padsTaken,introSpeech,turnsIntroSpeech,
 	npcWalk(pos1.Position)
 	npcWalk(pos2.Position)
 	NPC.HumanoidRootPart.CFrame = pos2.CFrame
-	wait()
+	task.wait(0.1)
 	npcRoot.Anchored   = true
 	npcChat(sflSpeech,5)
 	checkBehind()
 	npcChat(kickSpeech)
 	coroutine.resume(taskCoro)
-	wait(5)
+	task.wait(5)
 	coroutine.close(taskCoro)
 	checkKick()
 	npcRoot.Anchored = false
-	spawn(function() --Does a similar thing to the coroutine 
+	task.spawn(function() --Does a similar thing to the coroutine 
 		npcWalk(pos3.Position)
 	end)
 	humanoid.WalkSpeed = 16
-	wait(1)
-	spawn(function()
+	task.wait(1)
+	task.spawn(function()
 		playerWalk(pos3.Position)	
 	end)
-	wait(2)
+	task.wait(2)
 	fadeUi("out")
-	wait(0.5)
+	task.wait(0.5)
 	finalize:FireServer() --This last part is the ending section of the stuff
 	NPC:Destroy()
 	fadeUi("in")
-	wait(1)
+	task.wait(1)
 	
 	script.Disabled = true
 end)
